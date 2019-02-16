@@ -9,13 +9,18 @@ var conn = mysql.createConnection({
   database: "library"
 });
 
+conn.connect(function(err) {
+  if (err) throw err;
+    console.log("Successfully connected to DB!");
+});
+
+
 router.get('/', function(req, res) {
   res.end(JSON.stringify({mesaj: "Selam dunya"}));
 });
 
 router.post('/postMethod', function(req, res) {
   res.end(JSON.stringify(req.body));
-  console.log(req.body);
 });
 
 router.get('/getMethod', function(req, res) {
@@ -23,15 +28,22 @@ router.get('/getMethod', function(req, res) {
 });
 
 router.get('/bookList', function(req, res) {
-  conn.connect(function(err) {
-    if (err) throw err;
-    console.log("Successfully connected to DB!");
     var sql = "select * from book_info";
     conn.query(sql, function (err, result) {
       if (err) throw err;
       res.end(JSON.stringify(result));
     });
-  });
+});
+
+router.post('/login', function(req, res) {
+    var sql = "select * from users where email = ? and password = ?;";
+    conn.query(sql, [req.body.email, req.body.password],function (err, result) {
+      if (err) throw err;
+      if(result.length)
+        res.end(JSON.stringify({mesaj: "Hoş geldiniz", giris: true}));
+      else
+        res.end(JSON.stringify({mesaj: "Deneme başarısız", giris: false}));
+    });
   
 });
 
